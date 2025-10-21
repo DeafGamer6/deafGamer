@@ -1,6 +1,6 @@
 ---
 title: 'Blog'
-
+type: landing
 
 design:
   # Section spacing
