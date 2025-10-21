@@ -125,22 +125,16 @@ languages:
 #   Only `title`, `awarder`, and `date` are required.
 #   Begin multi-line `summary` with YAML's `|` or `|2-` multi-line prefix and indent 2 spaces below.
 awards:
-  - title: Outstanding PhD Thesis
-    url: https://www.stanford.edu/
-    date: '2019-06-30'
-    awarder: Stanford University
+  - title: Example
+    date: '2025-10-21'
+    awarder: Cardiff University
     icon: hero/academic-cap
     summary: |
-      Recognized for contributions to scaling laws in deep learning.
+      Example Summary of items
   - title: Outstanding PhD Thesis
-    url: https://www.stanford.edu/
-    date: '2019-06-30'
-    awarder: Stanford University
-    icon: hero/academic-cap
-    summary: |
-      Recognized for contributions to scaling laws in deep learning.
-      
+    date: '2025-10-21'
+    awarder: Cardiff University
 
 ---
 
-Maximilian Curtis is 
+Maximilian Curtis is a current PhD candidate in Human Computer Interaction (HCI) at Cardiff University. He currently holds his Bsc from Cardiff University in Computer Science. He is currently based in and around Cardiff, UK and Bristol, UK. Max is a dedicated researcher in the field of HCI, with a specialisation in accessibility for the d/Deaf and Hard of Hearing (d/DHH) in video games. His work explores the current experiences of the d/DHH community in relation to gaming. His work, and PhD Thesis, primarily focuses on the d/Deaf experience socially in video games, looking at how BSL (British Sign Language) communication is effected in gaming scenarios. Max is committed to creating a more equitable and fun world of gaming for all, ensuring that contemporary gaming continues to create a more accessible environment for play.
