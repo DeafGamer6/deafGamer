@@ -116,9 +116,9 @@ skills:
 
 languages:
   - name: English
-    Fluent
+    percent: Fluent
   - name: BSL
-    Pre-Level 1
+    percent: Pre-Level 1
 
 # Awards.
 #   Add/remove as many awards below as you like.
