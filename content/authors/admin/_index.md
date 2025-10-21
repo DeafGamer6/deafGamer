@@ -50,7 +50,7 @@ interests:
   - d/Deaf and Hard of Hearing Community
 
 education:
-  - area: PhD Computer Science (HCI Focus)
+  - area: PhD Computer Science
     institution: Cardiff University
     date_start: 2022-10-01
     date_end: 2026-10-01
