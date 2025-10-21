@@ -11,8 +11,8 @@ design:
 sections:
   - block: collection
     content:
-      title: Selected Projects
-      text: I enjoy making things. Here are a selection of projects that I have worked on over the years.
+      title: Projects
+      text: I don't often do programming projects, more recently focusing on HCI research. However, it is good practice to keep up to date with programming, so mini-practice projects are here.
       filters:
         folders:
           - projects
