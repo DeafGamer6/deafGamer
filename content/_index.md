@@ -20,14 +20,7 @@ sections:
         url: uploads/MaximilianCurtis_CV.pdf
       headings:
         about: ''
-        Education:
-          content:
-            username: admin
-          design:
-            # Hugo date format
-            date_format: 'January 2006'
-            # Education or Experience section first?
-            is_education_first: True
+        Education: 'resume-experience'
         interests: ''
     design:
       # Apply a gradient background
