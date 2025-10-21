@@ -14,7 +14,7 @@ pronouns: He/Him
 
 # Status emoji
 status:
-  icon: 
+  icon: A
 
 # Is this the primary user of the site?
 superuser: true
@@ -28,7 +28,7 @@ role: PhD Candidate - HCI - Accessibility
 # Organizations/Affiliations to display in Biography blox
 organizations:
   - name: Cardiff University
-    url: 
+    url: https://www.cardiff.ac.uk/computer-science
 
 # Social network links
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
@@ -52,8 +52,8 @@ interests:
 education:
   - area: PhD Computer Science (HCI Focus)
     institution: Cardiff University
-    date_start: 01/10/2022
-    date_end: EST-01/10/2026
+    date_start: 2022-10-01
+    date_end: 2026-10-01
     summary: |
       Thesis on audio accessibility in video games for those that are d/Deaf and Hard of hearing.
       "Deaf Play: A Narrative Thesis on the social play contexts of Deaf players"
@@ -63,8 +63,8 @@ education:
 
   - area: Bsc Computer Science
     institution: Cardiff University
-    date_start: 01/09/2019
-    date_end: 31/06/2022
+    date_start: 2019-09-01
+    date_end: 2022-06-01
     summary: |
 
       Final dissertation on subtitling and Sign langauge Interpreting systems for TV and Movies
@@ -112,7 +112,7 @@ skills:
       - name: Painting WarHammer 40k Minis
         description: ''
         percent: 70
-        icon: 
+        icon: book-open
 
 languages:
   - name: English
@@ -125,12 +125,20 @@ languages:
 #   Only `title`, `awarder`, and `date` are required.
 #   Begin multi-line `summary` with YAML's `|` or `|2-` multi-line prefix and indent 2 spaces below.
 awards:
-  - title: Best
-    url: 
-    date: ''
-    awarder: 
-    icon: trophy
+  - title: Outstanding PhD Thesis
+    url: https://www.stanford.edu/
+    date: '2019-06-30'
+    awarder: Stanford University
+    icon: hero/academic-cap
     summary: |
+      Recognized for contributions to scaling laws in deep learning.
+  - title: Outstanding PhD Thesis
+    url: https://www.stanford.edu/
+    date: '2019-06-30'
+    awarder: Stanford University
+    icon: hero/academic-cap
+    summary: |
+      Recognized for contributions to scaling laws in deep learning.
       
 
 ---
