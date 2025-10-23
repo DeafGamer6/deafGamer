@@ -64,26 +64,37 @@ with higher levels of hearing or better audio hardware, are not considered an is
 are audio visualisations? By integrating audio visualisations as a part of their balanced competitive environment,
 Fortnite has demonstrated that accessibility and competitiveness are not mutually exclusive.
 
-References
+**REFERENCES**
+
 [1] Steam Workshop::Audio Test Chamber.
+
 [2] The Optimal Audio Setup For CS:GO, Jan. 2021. Section: Guides.
+
 [3] Broderick, J., Duggan, J., and Redfern, S. The Importance of Spatial Audio in Modern Games and Virtual
 Environments. In 2018 IEEE Games, Entertainment, Media Conference (GEM) (Aug. 2018), pp. 1–9.
+
 [4] Coutinho, F., Prates, R. O., and Chaimowicz, L. An Analysis of Information Conveyed through Audio in an
 FPS Game and Its Impact on Deaf Players Experience. In 2011 Brazilian Symposium on Games and Digital
 Entertainment (Nov. 2011), pp. 53–62. ISSN: 2159-6662.
+
 [5] Cowan, B., Kapralos, B., and Collins, K. Does Improved Sound Rendering Increase Player Performance?
 A Graph-Based Spatial Audio Framework. IEEE Transactions on Games 13, 3 (Sept. 2021), 263–274.
 Conference Name: IEEE Transactions on Games.
+
 [6] Granados, J. LEVEL-UP! IDENTIFYING WAYS TO MAKE VIDEO GAMES MORE ACCESSIBLE FOR
 DEAF AND HARD-OF-HEARING INDIVIDUALS.
+
 [7] Haddad, D., and Strand, C. Visual Substitutes for Audio Cues - Providing situational awareness for players
 with auditory disabilities. Malm¨o universitet/Teknik och samh¨alle, 2019.
+
 [8] Holloway, A. Visualizing Audio in a First-Person Shooter With Directional Sound Display.
+
 [9] Naranjo, O., Perez, G., Ibanez, M. L., and Peinado, F. Developing a Video Game Accessibility Toolkit for the
 Deaf and Hearing Impaired.
+
 [10] Semionov, K., and McGregor, I. Effect of various spatial auditory cues on the perception of threat in a
 first-person shooter video game. In Proceedings of the 15th International Audio Mostly Conference (New
 York, NY, USA, Sept. 2020), AM ’20, Association for Computing Machinery, pp. 22–29.
+
 [11] Westin, T., S¨oderstr¨om, D., Karlsson, O., and Peiris, R. Inclusive Competitive Game Play Through Balanced
 Sensory Feedback. Studies in Health Technology and Informatics 242 (2017), 961–968.
