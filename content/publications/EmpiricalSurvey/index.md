@@ -10,7 +10,10 @@ authors:
 # Author notes (optional)
 
 
+date: '2025-11-20T00:00:00Z'
+
 # Schedule page publish date (NOT publication's date).
+publishDate: '2025-11-20T00:00:00Z'
 
 # Publication type.
 # Accepts a single type but formatted as a YAML list (for Hugo requirements).
@@ -38,6 +41,9 @@ hugoblox:
     doi: 
 
 # Custom links
+links:
+  - type: pdf
+    url: Empirical_Survey_Satisfaction.pdf
 
 
 # Featured image

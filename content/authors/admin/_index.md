@@ -129,9 +129,9 @@ awards:
     date: '2025-10-21'
     awarder: Cardiff University
     icon: hero/academic-cap
-    summary: |
+    summary: 
       Example Summary of items
-  - title: Outstanding PhD Thesis
+  - title: PhD Thesis
     date: '2025-10-21'
     awarder: Cardiff University
 
