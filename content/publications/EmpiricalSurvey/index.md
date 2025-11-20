@@ -30,8 +30,8 @@ abstract: Previous work has explored d/Deaf and Hard of Hearing Gamers' (DHG) ex
 summary: This is a draft of an unpublished research study completed for my PhD research. It investigates the current views and perspectives on contemporary audio accessibility for d/DHH gamers.
 
 button:
-text: OPEN PDF
-url: Empirical_Survey_Satisfaction.pdf
+  text: OPEN PDF
+  url: Empirical_Survey_Satisfaction.pdf
 
 tags:
   - AudioAccessibiliy
