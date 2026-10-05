@@ -80,46 +80,6 @@ work:
       
 
 
-# Skills
-# Add your own SVG icons to `assets/media/icons/`
-skills:
-  - name: Technical Skills
-    items:
-      - name: R Studio
-        description: ''
-        percent: 95
-        icon: code-bracket
-      - name: Machine Learning
-        description: ''
-        percent: 100
-        icon: chart-bar
-      - name: Cloud Computing (AWS/GCP)
-        description: ''
-        percent: 85
-        icon: cloud
-  - name: Hobbies
-    color: '#eeac02'
-    color_border: '#f0bf23'
-    items:
-      - name: Video Games
-        description: ''
-        percent: 80
-        icon: cpu-chip
-      - name: Reading
-        description: ''
-        percent: 90
-        icon: book-open
-      - name: Painting WarHammer 40k Minis
-        description: ''
-        percent: 70
-        icon: book-open
-
-languages:
-  - name: English
-    percent: Fluent
-  - name: BSL
-    percent: Pre-Level 1
-
 # Awards.
 #   Add/remove as many awards below as you like.
 #   Only `title`, `awarder`, and `date` are required.
