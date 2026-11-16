@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swiper No Swiping</title>
+<style>
+/* ===== Fonts (bundled for offline use) ===== */
+@font-face{font-family:"Bricolage Grotesque";font-weight:400;font-display:swap;src:url(fonts/bricolage-grotesque-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-weight:700;font-display:swap;src:url(fonts/bricolage-grotesque-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-weight:800;font-display:swap;src:url(fonts/bricolage-grotesque-latin-800-normal.woff2) format("woff2")}
+
+/* ===== Theme tokens ===== */
+:root{--bg:#efe9fb;--ink:#2b1a45;--card:#fff;--like:#16a679;--nope:#e5484d;--mute:#6d5f86;--btn:#2b1a45;--btnink:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17102a;--ink:#f3eefc;--card:#2a1f45;--mute:#a99dc4;--btn:#f3eefc;--btnink:#17102a;--like:#3ddc9f;--nope:#ff6b70}}
+:root[data-theme="dark"]{--bg:#17102a;--ink:#f3eefc;--card:#2a1f45;--mute:#a99dc4;--btn:#f3eefc;--btnink:#17102a;--like:#3ddc9f;--nope:#ff6b70}
+
+/* ===== Base ===== */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;overflow:hidden}
+main{width:100%;max-width:440px;flex:1;display:flex;flex-direction:column;padding:16px;min-height:0}
+h1{font-size:2rem;line-height:1.05;margin:8px 0 12px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.2rem;margin:22px 0 4px}
+p{color:var(--mute);margin:0 0 16px;line-height:1.45}
+.hide{display:none!important}
+.scroll{overflow-y:auto;flex:1;min-height:0;padding-bottom:20px}
+.end{text-align:center;margin:auto 0}
+
+/* ===== Buttons and inputs ===== */
+.btn{font:inherit;font-weight:700;border:0;border-radius:999px;padding:14px 22px;background:var(--btn);color:var(--btnink);cursor:pointer;width:100%;margin-bottom:10px}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.btn.quiet{background:transparent;color:var(--mute);font-weight:400;text-decoration:underline}
+.btn.danger{background:var(--nope);color:#fff}
+.btn:focus-visible,.round:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--like);outline-offset:2px}
+#name{width:100%;font:inherit;padding:14px;border-radius:14px;border:2px solid var(--ink);background:var(--card);color:var(--ink);margin-bottom:12px}
+.field{font:inherit;font-size:.95rem;margin:0;padding:9px 10px;border-radius:10px;border:1.5px solid var(--mute);background:var(--bg);color:var(--ink);width:100%}
+.io{font-size:.85rem;margin-bottom:10px}
+.x{border:0;background:transparent;color:var(--nope);font-size:1.2rem;cursor:pointer}
+
+/* ===== Play screen ===== */
+#play{display:flex;flex-direction:column;flex:1;min-height:0}
+.tally{display:flex;justify-content:space-between;font-weight:700;margin-top:4px}
+.lives{letter-spacing:.12em;color:var(--nope)}
+.lives .gone{opacity:.25}
+#deck{flex:1;position:relative;min-height:0;margin:8px 0 16px}
+.card{position:absolute;inset:0;background:var(--card);border-radius:28px;overflow:hidden;box-shadow:0 10px 30px rgba(43,26,69,.25);touch-action:none;user-select:none;will-change:transform}
+.card img{width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.card.under{transform:scale(.95) translateY(12px);opacity:.8}
+.stamp{position:absolute;top:28px;font-weight:800;font-size:2.2rem;border:5px solid;padding:2px 14px;border-radius:12px;opacity:0;background:rgba(255,255,255,.85)}
+.stamp.l{right:22px;color:var(--nope);transform:rotate(14deg)}
+.stamp.r{left:22px;color:var(--like);transform:rotate(-14deg)}
+.bar{display:flex;justify-content:center;gap:28px;padding-bottom:8px}
+.round{width:68px;height:68px;border-radius:50%;border:3px solid;background:var(--card);font-size:1.9rem;cursor:pointer;display:grid;place-items:center}
+.round.n{color:var(--nope);border-color:var(--nope)}
+.round.y{color:var(--like);border-color:var(--like)}
+
+/* ===== Card bio overlay ===== */
+.bio{position:absolute;left:0;right:0;bottom:0;padding:64px 68px 16px 16px;background:linear-gradient(transparent,rgba(0,0,0,.82));color:#fff;max-height:60%;overflow:hidden;pointer-events:none}
+.card.open .bio{max-height:92%;padding-top:90px}
+.chip{display:inline-block;background:rgba(255,255,255,.22);padding:4px 10px;border-radius:999px;font-size:.85rem;font-weight:700;margin-bottom:6px}
+.cap{font-size:1.3rem;font-weight:800;line-height:1.2;margin-bottom:4px}
+.pq{display:none;font-size:.95rem;line-height:1.35;margin-top:8px;background:rgba(255,255,255,.15);padding:8px 10px;border-radius:12px}
+.pq.first,.card.open .pq{display:block}
+.info{position:absolute;right:14px;bottom:14px;width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.9);background:rgba(0,0,0,.4);color:#fff;font:italic 700 1.3rem Georgia,serif;cursor:pointer;z-index:3}
+
+/* ===== End screens ===== */
+.big{font-size:4.5rem;font-weight:800;line-height:1}
+.mad{width:100%;max-height:55vh;object-fit:cover;border-radius:28px;margin-bottom:12px}
+.madbox{font-size:6rem}
+
+/* ===== Profile ===== */
+.pfimg{width:100%;max-height:52vh;object-fit:cover;border-radius:24px;margin-bottom:6px}
+.pfchip{display:inline-block;background:var(--btn);color:var(--btnink);padding:4px 12px;border-radius:999px;font-size:.85rem;font-weight:700}
+.pfcap{font-size:1.2rem;font-weight:800;color:var(--ink);margin:10px 0 4px}
+.pfq{background:var(--card);border-radius:16px;padding:12px 14px;margin:10px 0;line-height:1.4}
+.pfrow{display:flex;justify-content:space-between;gap:12px;background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.pfrow span{color:var(--mute)}
+.pfrow b{text-align:right}
+.pfdanger{display:flex;gap:10px;margin-top:6px}
+.pfdanger .btn{color:var(--nope)}
+
+/* ===== Editors ===== */
+.row{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:18px;padding:10px;margin-bottom:12px}
+.row .stack{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.mrow{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+.mrow .field{flex:1}
+.mrow .field.lbl{flex:0 0 38%}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.gt{position:relative;aspect-ratio:3/4}
+.gt img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.gx{position:absolute;top:4px;right:4px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(0,0,0,.7);color:#fff;font-size:1rem;cursor:pointer}
+
+/* ===== Overlays and effects ===== */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:80;display:flex;align-items:center;justify-content:center;padding:16px}
+.sheet{background:var(--card);color:var(--ink);border-radius:24px;padding:20px;width:100%;max-width:400px;max-height:80vh;overflow-y:auto}
+.sheet h2{margin:0 0 6px}
+.sheet .btn{margin-bottom:8px}
+.pop{position:fixed;font-size:8rem;line-height:1;color:#ff4d7d;pointer-events:none;z-index:50;filter:drop-shadow(0 6px 12px rgba(0,0,0,.35));animation:pop .8s ease-out forwards}
+.mini{position:fixed;font-size:1.6rem;pointer-events:none;z-index:50;animation:rise 1.1s ease-out forwards}
+.toast{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);background:var(--nope);color:#fff;font-weight:800;font-size:1.7rem;padding:14px 22px;border-radius:18px;z-index:60;pointer-events:none;text-align:center;max-width:82vw;animation:toast 1.1s ease-out forwards}
+.toast.calm{background:var(--btn);color:var(--btnink)}
+.shake{animation:shake .45s}
+.spin{display:inline-block;animation:spin 1s linear infinite}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(0);opacity:0}30%{transform:translate(-50%,-50%) scale(1.3);opacity:1}55%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-90%) scale(1.1);opacity:0}}
+@keyframes rise{from{opacity:1}to{transform:translateY(-240px) rotate(var(--r));opacity:0}}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}80%{opacity:1}100%{opacity:0}}
+@keyframes shake{0%,100%{translate:0}20%{translate:-14px}40%{translate:12px}60%{translate:-9px}80%{translate:6px}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.pop,.mini,.toast,.shake{animation-duration:.01s}}
+</style>
+</head>
+<body>
+<main>
+  <!-- Setup / home -->
+  <section id="setup">
+    <h1>Swipe on your favourite person</h1>
+    <p id="info"></p>
+    <input id="name" type="text" placeholder="Their name" aria-label="Their name">
+    <input id="files" type="file" accept="image/*" multiple class="hide">
+    <input id="madfile" type="file" accept="image/*" class="hide">
+    <button class="btn" id="start">Start swiping</button>
+    <button class="btn alt" id="pick">Add photos</button>
+    <button class="btn alt" id="madpick">Choose the “mad” photo</button>
+    <button class="btn alt" id="photobtn">Manage photos</button>
+    <button class="btn alt" id="poolbtn">Edit bios</button>
+    <button class="btn alt" id="memobtn">Things to remember</button>
+    <button class="btn quiet" id="clear">Remove all saved photos</button>
+  </section>
+
+  <!-- Game -->
+  <section id="play" class="hide">
+    <div class="tally"><span id="lives" class="lives" aria-label="Lives left"></span><span id="count"></span><span id="liked"></span></div>
+    <div id="deck"></div>
+    <div class="bar">
+      <button class="round n" id="no" aria-label="Swipe left">✕</button>
+      <button class="round y" id="yes" aria-label="Swipe right">♥</button>
+    </div>
+  </section>
+
+  <section id="done" class="hide end">
+    <div class="big" id="bigN"></div>
+    <h1 id="doneT"></h1>
+    <p id="doneP"></p>
+    <button class="btn" id="again">Swipe again</button>
+    <button class="btn alt" id="edit">Edit photos</button>
+  </section>
+
+  <section id="over" class="hide end">
+    <div id="madslot"></div>
+    <h1>Three wrong choices.</h1>
+    <p id="overP"></p>
+    <button class="btn" id="retry">Try again</button>
+    <button class="btn alt" id="edit2">Edit photos</button>
+  </section>
+
+  <!-- Profile -->
+  <section id="profile" class="hide scroll">
+    <img id="pfimg" class="pfimg" alt="">
+    <h1 id="pfname"></h1>
+    <div id="pfbio"></div>
+    <h2>About them</h2>
+    <div id="pfnotes"></div>
+    <button class="btn alt" id="pfedit">Edit notes</button>
+    <div class="pfdanger"><button class="btn quiet" id="pfreport">Report</button><button class="btn quiet" id="pfblock">Block</button></div>
+    <button class="btn" id="pfback">Back to swiping</button>
+  </section>
+
+  <!-- Editors -->
+  <section id="pool" class="hide scroll">
+    <h1>Bios, distances and prompts</h1>
+    <p>Each photo gets a random bio, distance and prompt from these lists. Everything stays on this device.</p>
+    <input id="jsonfile" type="file" accept=".json,application/json" class="hide">
+    <div id="poollist"></div>
+    <button class="btn" id="pooldone">Done</button>
+  </section>
+
+  <section id="memo" class="hide scroll">
+    <h1>Things to remember</h1>
+    <p>Birthdays, favourites, gift ideas. Private and saved only on this device.</p>
+    <div id="memolist"></div>
+    <button class="btn alt" id="memoadd">Add a detail</button>
+    <button class="btn" id="memodone">Done</button>
+  </section>
+
+  <section id="photos" class="hide scroll">
+    <h1>Manage photos</h1>
+    <p>Tap ✕ on a photo to remove it.</p>
+    <div id="photogrid" class="grid"></div>
+    <button class="btn" id="photodone">Done</button>
+  </section>
+
+  <div id="modal" class="modal hide"><div class="sheet" id="sheet"></div></div>
+  <datalist id="dl-dist"></datalist><datalist id="dl-q"></datalist><datalist id="dl-k"></datalist>
+</main>
+
+<script>
+/* ============================================================
+   1. Helpers
+   ============================================================ */
+const $=id=>document.getElementById(id);
+const kidsOf=k=>k.flat(Infinity).filter(c=>c||c===0);
+/* Build a DOM element. Text children are inserted as text, so nothing needs escaping. */
+function h(tag,props,...kids){
+  const e=document.createElement(tag);
+  for(const [k,v] of Object.entries(props||{})){
+    if(v==null||v===false)continue;
+    if(k==='class')e.className=v;
+    else if(k==='text')e.textContent=v;
+    else if(k==='value'||k.startsWith('on'))e[k]=v;
+    else e.setAttribute(k,v);
+  }
+  e.append(...kidsOf(kids));
+  return e;
+}
+const fill=(el,...kids)=>{el.replaceChildren(...kidsOf(kids));return el};
+const shuffle=a=>{for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
+const nativeApp=(method,opts,cb)=>{try{window.Capacitor&&Capacitor.nativeCallback&&Capacitor.nativeCallback('App',method,opts||{},cb)}catch(e){}};
+const filled=s=>s&&s.trim();
+
+/* ============================================================
+   2. Content and constants
+   ============================================================ */
+const THRESH=90;
+const DISTS=['Too far','Not close enough','Closer than you think','0 km away','Right next to you','Currently on the sofa','In the kitchen, probably','Same bed, different side','Behind you, actually','2 km away. Walkable.','Lives rent-free in your head'];
+const PROMPTS=['Two truths and a lie','The way to win me over is','My most irrational fear','I get way too excited about','A typical Sunday for me','Don’t hate me if I','My love language is','A random fact I love','My green flags','I’m weirdly good at','The best way to ask me out is','We’ll get along if','I’ll fall for you if','My hidden talent','My worst habit','Dating me is like','My go-to comfort meal','The last thing that made me laugh'];
+const KEYS=['Birthday','Anniversary','Star sign','Favourite food','Favourite drink','Coffee order','Favourite colour','Favourite film','Favourite song','Favourite flower','Favourite sweet','Allergies','Dislikes','Nicknames','Ring size','Clothing size','Shoe size','Gift ideas'];
+const WRONG=['Wrong choice!','Wrong choice. Try again.','Excuse me?','Really?','Bad answer.'];
+const REPORTS=[
+  ['Too attractive','Verdict: guilty, but there is nothing we can do about it.'],
+  ['Keeps stealing the duvet','This is covered under relationship traditions. No action taken.'],
+  ['Always right','Unfortunately, the evidence supports them.'],
+  ['Smells too nice','Case closed. Smelling nice is a feature, not a bug.'],
+  ['Makes me smile too much','We have referred this to the Department of Happiness.'],
+  ['Better snack choices than me','You are advised to politely ask for a bite.'],
+  ['Other','Our team found no violations and requested a hug as evidence.']
+];
+const BLOCKS=[
+  'Error 143: too much love in the way.',
+  'This person lives rent-free in your heart and has a lease.',
+  'They were being adorable and the system crashed.',
+  'The Block button has been blocked by the Swipe Right button.',
+  'Blocking is not available for this user. Nobody knows why. Everybody knows why.',
+  'We give up. You have been blocked from blocking them.'
+];
+const SCREENS=['setup','play','done','over','profile','pool','memo','photos'];
+
+/* ============================================================
+   3. State
+   ============================================================ */
+/* Saved data (also kept in IndexedDB) */
+const D={name:'',blobs:[],mad:null,memo:[],pool:{bios:[],dists:DISTS.slice(),prompts:[]}};
+/* Current round */
+const G={photos:[],i:0,likes:0,lives:3,busy:false,card:null,viewing:null,blockTries:0};
+let canSave=true,here='setup',memoReturn='setup',sheetId=0,exitArmed=false;
+
+/* ============================================================
+   4. Storage (IndexedDB on the device, memory-only if unavailable)
+   ============================================================ */
+let dbp=null;
+const openDB=()=>dbp||(dbp=new Promise((res,rej)=>{
+  const r=indexedDB.open('swipe-partner',1);
+  r.onupgradeneeded=()=>{r.result.createObjectStore('photos',{autoIncrement:true});r.result.createObjectStore('meta')};
+  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);
+}));
+/* fn gets the object store and may return one request or an array of requests. */
+async function tx(store,mode,fn){
+  const db=await openDB();
+  return new Promise((res,rej)=>{
+    const t=db.transaction(store,mode);const out=fn(t.objectStore(store));
+    t.oncomplete=()=>res(Array.isArray(out)?out.map(r=>r.result):out&&out.result);
+    t.onerror=t.onabort=()=>rej(t.error);
+  });
+}
+const meta={
+  get:k=>tx('meta','readonly',s=>s.get(k)),
+  set(k,v){if(canSave)tx('meta','readwrite',s=>{s.put(v,k)}).catch(()=>{})}
+};
+const saveName=()=>meta.set('name',D.name);
+const savePool=()=>meta.set('pool',D.pool);
+const saveMemo=()=>meta.set('memo',D.memo);
+
+async function loadPhotos(){
+  const [keys,vals]=await tx('photos','readonly',s=>[s.getAllKeys(),s.getAll()]);
+  return keys.map((id,n)=>({id,blob:vals[n]}));
+}
+async function addPhotos(blobs){
+  const base=D.blobs.length;
+  blobs.forEach((b,n)=>D.blobs.push({id:'m'+Date.now()+n,blob:b}));
+  if(!canSave)return;
+  try{(await tx('photos','readwrite',s=>blobs.map(b=>s.add(b)))).forEach((k,n)=>{D.blobs[base+n].id=k})}
+  catch(e){canSave=false}
+}
+async function removePhoto(o){
+  D.blobs=D.blobs.filter(x=>x!==o);
+  if(canSave)await tx('photos','readwrite',s=>{s.delete(o.id)}).catch(()=>{});
+}
+async function removeAllPhotos(){
+  D.blobs=[];
+  if(canSave)await tx('photos','readwrite',s=>{s.clear()}).catch(()=>{});
+}
+async function load(){
+  try{
+    D.blobs=await loadPhotos();
+    const [name,mad,memo,pool]=await Promise.all(['name','mad','memo','pool'].map(meta.get));
+    D.name=name||'';D.mad=mad||null;D.memo=memo||[];Object.assign(D.pool,pool||{});
+  }catch(e){canSave=false}
+  $('name').value=D.name;refreshSetup();
+}
+/* Phone photos are large; shrink them before saving. */
+async function shrink(f){
+  try{
+    const bm=await createImageBitmap(f);
+    const k=Math.min(1,1400/Math.max(bm.width,bm.height));
+    const c=h('canvas');c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);
+    c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+    return await new Promise(r=>c.toBlob(b=>r(b||f),'image/jpeg',.85));
+  }catch(e){return f}
+}
+
+/* ============================================================
+   5. Navigation, toasts, sheets, back button
+   ============================================================ */
+function show(id){here=id;SCREENS.forEach(s=>$(s).classList.toggle('hide',s!==id))}
+
+function toast(text,calm){
+  const d=h('div',{class:'toast'+(calm?' calm':''),text});
+  document.body.append(d);setTimeout(()=>d.remove(),1150);
+}
+
+const sheetOpen=()=>!$('modal').classList.contains('hide');
+function sheet(...kids){sheetId++;fill($('sheet'),kids);$('modal').classList.remove('hide')}
+function closeSheet(){sheetId++;$('modal').classList.add('hide')}
+/* Run fn later, but only if the same sheet is still showing. */
+function sheetLater(fn,ms){const id=sheetId;setTimeout(()=>{if(id===sheetId&&sheetOpen())fn()},ms)}
+const sheetBtn=(text,cls,fn)=>h('button',{class:'btn '+cls,text,onclick:fn});
+
+const BACK={
+  profile:()=>show('play'),
+  memo:()=>closeMemo(),
+  play:()=>{if(confirm('Leave this round?'))show('setup')}
+};
+function handleBack(){
+  if(sheetOpen())return closeSheet();
+  if(here!=='setup')return (BACK[here]||(()=>show('setup')))();
+  if(exitArmed)return nativeApp('exitApp');
+  exitArmed=true;toast('Press back again to exit',true);setTimeout(()=>{exitArmed=false},2000);
+}
+
+/* ============================================================
+   6. Setup screen
+   ============================================================ */
+function refreshSetup(){
+  const n=D.blobs.length;
+  $('info').textContent=n
+    ?plural(n,'photo')+(canSave?' saved on this device.':' loaded. This browser can’t save them, so you’ll need to re-add them next time.')
+    :'Add photos of your partner from your camera roll. They stay on your device and are never uploaded.';
+  ['start','clear','photobtn'].forEach(id=>$(id).classList.toggle('hide',!n));
+  $('pick').textContent=n?'Add more photos':'Choose photos';
+  $('pick').classList.toggle('alt',!!n);
+  $('madpick').textContent=D.mad?'Change the “mad” photo':'Choose the “mad” photo';
+}
+function setName(){D.name=$('name').value.trim();saveName()}
+
+async function onPhotosChosen(e){
+  const files=[...e.target.files];if(!files.length)return;
+  $('info').textContent='Saving '+plural(files.length,'photo')+'…';
+  const out=[];for(const f of files)out.push(await shrink(f));
+  await addPhotos(out);e.target.value='';refreshSetup();
+}
+async function onMadChosen(e){
+  const f=e.target.files[0];if(!f)return;
+  D.mad=await shrink(f);meta.set('mad',D.mad);
+  e.target.value='';refreshSetup();
+}
+async function clearPhotos(){
+  if(!confirm('Remove all saved photos from this device?'))return;
+  await removeAllPhotos();refreshSetup();
+}
+
+/* ============================================================
+   7. The game
+   ============================================================ */
+/* Each photo gets a random bio, distance and prompt. Lists are used up before repeating. */
+function cycler(arr){let q=[];return()=>{if(!arr.length)return null;if(!q.length)q=shuffle(arr.slice());return q.pop()}}
+function dealBios(){
+  const p=D.pool;
+  const nextBio=cycler(p.bios.filter(filled)),nextDist=cycler(p.dists.filter(filled)),nextPrompt=cycler(p.prompts.filter(x=>filled(x.q)&&filled(x.a)));
+  G.photos.forEach(ph=>{ph.b={cap:nextBio(),dist:nextDist(),prompt:nextPrompt()}});
+}
+
+function begin(){
+  G.photos.forEach(p=>URL.revokeObjectURL(p.url));
+  G.photos=shuffle(D.blobs.map(o=>({id:o.id,url:URL.createObjectURL(o.blob)})));
+  dealBios();
+  Object.assign(G,{i:0,likes:0,lives:3,busy:false});
+  show('play');render();
+}
+
+const showLives=()=>fill($('lives'),[0,1,2].map(k=>h('span',{class:k<G.lives?'':'gone',text:'♥'})));
+
+function render(){
+  $('liked').textContent='Liked '+G.likes;showLives();
+  if(G.i>=G.photos.length)return finish();
+  $('count').textContent=(G.i+1)+' of '+G.photos.length;
+  const next=G.photos[G.i+1];
+  const top=makeCard(G.photos[G.i],false);
+  fill($('deck'),next&&makeCard(next,true),top);
+  attach(top);
+}
+
+/* The bio pieces are shared by the card overlay and the profile page. */
+const bioParts=(b,c)=>[
+  b.dist&&h('span',{class:c.chip,text:b.dist}),
+  b.cap&&h('div',{class:c.cap,text:b.cap}),
+  b.prompt&&h('div',{class:c.pq},h('b',{text:b.prompt.q}),h('br'),b.prompt.a)
+];
+function makeCard(p,under){
+  return h('div',{class:'card'+(under?' under':'')},
+    h('img',{alt:'Photo',src:p.url}),
+    h('div',{class:'stamp l',text:'NOPE'}),h('div',{class:'stamp r',text:'LIKE'}),
+    h('div',{class:'bio'},bioParts(p.b||{},{chip:'chip',cap:'cap',pq:'pq first'})),
+    h('button',{class:'info','aria-label':'Open profile',text:'i',onpointerdown:e=>e.stopPropagation(),onclick:()=>openProfile(p)}));
+}
+
+/* Drag to swipe. A tap (almost no movement) opens the full bio on the card. */
+function attach(c){
+  G.card=c;
+  const nope=c.querySelector('.l'),like=c.querySelector('.r');
+  let startX=0,dx=0,down=false;
+  const move=(x,anim)=>{
+    c.style.transition=anim?'transform .28s ease':'none';
+    c.style.transform='translateX('+x+'px) rotate('+(x/18)+'deg)';
+    like.style.opacity=Math.max(0,Math.min(1,x/THRESH));
+    nope.style.opacity=Math.max(0,Math.min(1,-x/THRESH));
+  };
+  c.onpointerdown=e=>{down=true;dx=0;startX=e.clientX;c.setPointerCapture(e.pointerId)};
+  c.onpointermove=e=>{if(!down)return;dx=e.clientX-startX;move(dx,false)};
+  c.onpointerup=c.onpointercancel=()=>{
+    if(!down)return;down=false;
+    if(Math.abs(dx)>THRESH)return fling(dx>0?1:-1);
+    if(Math.abs(dx)<6)c.classList.toggle('open');
+    move(0,true);dx=0;
+  };
+}
+
+function fling(dir){
+  if(here!=='play')return;
+  if(dir<0)return wrong();
+  if(G.busy||!G.card||G.i>=G.photos.length)return;
+  G.busy=true;
+  const c=G.card;
+  c.style.transition='transform .35s ease, opacity .35s';
+  c.style.transform='translateX(600px) rotate(30deg)';
+  c.style.opacity='0';
+  G.likes++;burst();
+  setTimeout(()=>{G.i++;G.busy=false;render()},300);
+}
+
+/* Swiping left is always wrong: the photo stays and you lose a life. */
+function wrong(){
+  if(G.busy||!G.card||G.i>=G.photos.length||G.lives<=0)return;
+  G.lives--;showLives();
+  const c=G.card;
+  c.style.transition='transform .25s ease';c.style.transform='none';
+  c.querySelector('.l').style.opacity=0;c.querySelector('.r').style.opacity=0;
+  c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');
+  toast(G.lives===0?'Wrong choice!':G.lives===1?'Last chance!':pick(WRONG));
+  buzz([60,40,60]);
+  if(G.lives<=0){G.busy=true;setTimeout(()=>{G.busy=false;gameOver()},1000)}
+}
+
+function burst(){
+  buzz([30,40,30]);
+  const r=$('deck').getBoundingClientRect();
+  const big=h('div',{class:'pop',text:'♥'});
+  big.style.left=(r.left+r.width/2)+'px';big.style.top=(r.top+r.height/2)+'px';
+  document.body.append(big);setTimeout(()=>big.remove(),850);
+  for(let k=0;k<9;k++){
+    const m=h('div',{class:'mini',text:['♥','💗','💖'][k%3]});
+    m.style.left=(r.left+r.width*(.08+Math.random()*.84))+'px';m.style.top=(r.bottom-70)+'px';
+    m.style.setProperty('--r',(Math.random()*70-35)+'deg');m.style.animationDelay=(Math.random()*.3)+'s';
+    document.body.append(m);setTimeout(()=>m.remove(),1500);
+  }
+}
+
+function gameOver(){
+  show('over');
+  let madUrl=null;
+  fill($('madslot'),D.mad?h('img',{class:'mad',alt:'An unimpressed face',src:madUrl=URL.createObjectURL(D.mad),onload:()=>URL.revokeObjectURL(madUrl)}):h('div',{class:'madbox',text:'😠'}));
+  $('overP').textContent=(D.name?cap(D.name)+' is':'Someone is')+' not impressed. You still liked '+plural(G.likes,'photo')+'.';
+}
+function finish(){
+  show('done');
+  $('bigN').textContent='♥ '+G.likes;
+  $('doneT').textContent='Perfect match with '+(D.name?cap(D.name):'them');
+  $('doneP').textContent='You liked all '+G.photos.length+' photos and survived with '+G.lives+' li'+(G.lives===1?'fe':'ves')+' left.';
+}
+
+/* ============================================================
+   8. Profile page
+   ============================================================ */
+function openProfile(p){
+  G.viewing=p;
+  $('pfimg').src=p.url;
+  $('pfname').textContent=D.name||'Profile';
+  fill($('pfbio'),bioParts(p.b||{},{chip:'pfchip',cap:'pfcap',pq:'pfq'}));
+  const rows=D.memo.filter(m=>filled(m.k)&&filled(m.v));
+  fill($('pfnotes'),rows.length
+    ?rows.map(m=>h('div',{class:'pfrow'},h('span',{text:m.k}),h('b',{text:m.v})))
+    :h('p',{text:'Nothing saved yet. Tap Edit notes to add birthday, favourites and more.'}));
+  show('profile');$('profile').scrollTop=0;
+}
+
+/* ============================================================
+   9. Editors: photos, bios/distances/prompts, notes
+   ============================================================ */
+const delBtn=fn=>h('button',{class:'x','aria-label':'Delete',text:'✕',onclick:fn});
+
+/* Manage photos */
+let gridUrls=[];
+function drawPhotos(){
+  gridUrls.forEach(u=>URL.revokeObjectURL(u));gridUrls=[];
+  fill($('photogrid'),D.blobs.length?D.blobs.map(o=>{
+    const u=URL.createObjectURL(o.blob);gridUrls.push(u);
+    return h('div',{class:'gt'},h('img',{alt:'Saved photo',src:u}),
+      h('button',{class:'gx','aria-label':'Remove photo',text:'✕',onclick:()=>deletePhoto(o)}));
+  }):h('p',{text:'No photos yet.'}));
+}
+async function deletePhoto(o){
+  if(!confirm('Remove this photo?'))return;
+  await removePhoto(o);drawPhotos();refreshSetup();
+}
+
+/* Bios, distances and prompts */
+function textRow(arr,n,placeholder,list){
+  return h('div',{class:'mrow'},
+    h('input',{class:'field',type:'text',placeholder,list,value:arr[n],oninput:e=>{arr[n]=e.target.value;savePool()}}),
+    delBtn(()=>{arr.splice(n,1);savePool();drawPool()}));
+}
+function promptRow(n){
+  const o=D.pool.prompts[n];
+  return h('div',{class:'row'},
+    h('div',{class:'stack'},
+      h('input',{class:'field',type:'text',list:'dl-q',placeholder:'Prompt',value:o.q,oninput:e=>{o.q=e.target.value;savePool()}}),
+      h('textarea',{class:'field',rows:2,placeholder:'Their answer',value:o.a,oninput:e=>{o.a=e.target.value;savePool()}})),
+    delBtn(()=>{D.pool.prompts.splice(n,1);savePool();drawPool()}));
+}
+function importData(d){
+  const arr=a=>Array.isArray(a)?a:[];
+  const strs=a=>arr(a).map(String).filter(filled);
+  if(d.bios)D.pool.bios=strs(d.bios);
+  if(d.distances)D.pool.dists=strs(d.distances);
+  if(d.prompts)D.pool.prompts=arr(d.prompts).filter(x=>x&&x.q).map(x=>({q:String(x.q),a:String(x.a||'')}));
+  if(d.remember)D.memo=arr(d.remember).filter(x=>x&&x.k).map(x=>({k:String(x.k),v:String(x.v||'')}));
+  savePool();saveMemo();
+}
+async function onDataFile(e){
+  const f=e.target.files[0];if(!f)return;
+  try{importData(JSON.parse(await f.text()));drawPool()}catch(x){toast('Couldn’t read that file')}
+  e.target.value='';
+}
+function drawPool(){
+  const P=D.pool;
+  const head=(t,p)=>[h('h2',{text:t}),h('p',{text:p})];
+  const addBtn=(label,add)=>h('button',{class:'btn alt',text:label,onclick:()=>{add();savePool();drawPool()}});
+  const box=h('textarea',{class:'field io',rows:5});
+  const tool=(label,fn)=>h('button',{class:'btn alt',text:label,onclick:fn});
+  fill($('poollist'),
+    head('One-liner bios','Short lines like a profile headline.'),
+    P.bios.map((_,n)=>textRow(P.bios,n,'One-liner bio')),
+    addBtn('Add a bio',()=>P.bios.push('')),
+    head('Distances','Pick from the list or type your own.'),
+    P.dists.map((_,n)=>textRow(P.dists,n,'Distance','dl-dist')),
+    addBtn('Add a distance',()=>P.dists.push('')),
+    head('Prompts','Ask them the question, then type their answer.'),
+    P.prompts.map((_,n)=>promptRow(n)),
+    addBtn('Add a prompt',()=>P.prompts.push({q:'',a:''})),
+    head('Backup and import','Copy the text to back up. To load a profile file, choose it or paste its contents and tap Load.'),
+    box,
+    tool('Show my data as text',()=>{box.value=JSON.stringify({bios:P.bios,distances:P.dists,prompts:P.prompts,remember:D.memo},null,1)}),
+    tool('Load from the text above',()=>{try{importData(JSON.parse(box.value));drawPool()}catch(e){toast('Couldn’t read that')}}),
+    tool('Load from a file',()=>$('jsonfile').click()));
+}
+
+/* Things to remember */
+function drawMemo(){
+  fill($('memolist'),D.memo.map((m,n)=>h('div',{class:'mrow'},
+    h('input',{class:'field lbl',type:'text',list:'dl-k',placeholder:'Label',value:m.k,oninput:e=>{m.k=e.target.value;saveMemo()}}),
+    h('input',{class:'field',type:'text',placeholder:'Detail',value:m.v,oninput:e=>{m.v=e.target.value;saveMemo()}}),
+    delBtn(()=>{D.memo.splice(n,1);saveMemo();drawMemo()}))));
+}
+function openMemo(from){
+  memoReturn=from;
+  if(!D.memo.length)D.memo=['Birthday','Favourite food','Favourite film','Gift ideas'].map(k=>({k,v:''}));
+  drawMemo();show('memo');
+}
+function closeMemo(){
+  saveMemo();
+  if(memoReturn==='profile'&&G.viewing)openProfile(G.viewing);else show('setup');
+}
+
+/* ============================================================
+   10. Report and block (jokes)
+   ============================================================ */
+function reportFlow(){
+  sheet(h('h2',{text:'Report '+(D.name||'this profile')}),h('p',{text:'Why are you reporting them?'}),
+    REPORTS.map(([reason,verdict])=>sheetBtn(reason,'alt',()=>{
+      sheet(h('h2',{text:'Reviewing…'}),h('p',{},h('span',{class:'spin',text:'⏳'}),' Our team is looking into it.'));
+      sheetLater(()=>sheet(h('h2',{text:'Report reviewed'}),h('p',{text:verdict}),sheetBtn('Close','',closeSheet)),1200);
+    })),
+    sheetBtn('Cancel','quiet',closeSheet));
+}
+function blockFlow(){
+  sheet(h('h2',{text:'Block '+(D.name||'this profile')+'?'}),h('p',{text:'They will no longer be able to see your profile.'}),
+    sheetBtn('Block','danger',()=>{
+      sheet(h('h2',{text:'Blocking…'}),h('p',{},h('span',{class:'spin',text:'⏳'}),' Please wait.'));
+      const msg=BLOCKS[Math.min(G.blockTries++,BLOCKS.length-1)];
+      sheetLater(()=>{buzz([40,60,40]);sheet(h('h2',{text:'💔 Block failed'}),h('p',{text:msg}),sheetBtn('OK','',closeSheet))},1500);
+    }),
+    sheetBtn('Cancel','quiet',closeSheet));
+}
+
+/* ============================================================
+   11. Wiring and start-up
+   ============================================================ */
+const actions={
+  pick:()=>$('files').click(),madpick:()=>$('madfile').click(),clear:clearPhotos,
+  start:()=>{setName();begin()},again:begin,retry:begin,
+  edit:()=>show('setup'),edit2:()=>show('setup'),
+  no:()=>fling(-1),yes:()=>fling(1),
+  photobtn:()=>{drawPhotos();show('photos')},photodone:()=>show('setup'),
+  poolbtn:()=>{drawPool();show('pool')},pooldone:()=>show('setup'),
+  memobtn:()=>openMemo('setup'),memoadd:()=>{D.memo.push({k:'',v:''});drawMemo()},memodone:closeMemo,
+  pfback:()=>show('play'),pfedit:()=>openMemo('profile'),pfreport:reportFlow,pfblock:blockFlow
+};
+Object.entries(actions).forEach(([id,fn])=>{$(id).onclick=fn});
+$('files').onchange=onPhotosChosen;
+$('madfile').onchange=onMadChosen;
+$('jsonfile').onchange=onDataFile;
+$('name').onchange=setName;
+$('modal').onclick=e=>{if(e.target===$('modal'))closeSheet()};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')fling(-1);if(e.key==='ArrowRight')fling(1)});
+nativeApp('addListener',{eventName:'backButton'},handleBack);
+
+[['dl-dist',DISTS],['dl-q',PROMPTS],['dl-k',KEYS]].forEach(([id,a])=>fill($(id),a.map(v=>h('option',{value:v}))));
+load();
+</script>
+</body>
+</html>
